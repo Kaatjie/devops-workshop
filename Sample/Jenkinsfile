@@ -7,5 +7,25 @@ pipeline {
         sh 'docker build -t devops/aspnetmvc:latest Sample'
       }
     }
+    stage('Remove existing container') {
+      agent any
+      steps {
+        script {
+          try {
+            sh '''
+              docker rm -f aspnetmvc
+            '''
+          }
+          catch (exc) {
+            echo 'Container was not running'
+          }
+        }
+      }
+    }
+    stage ('Deploy Docker') {agent any
+      steps {
+        sh 'docker run -d --name=aspnetmvc -p 8100:80 devops/aspnetmvc:latest'
+      }
+    }
   }
 }
